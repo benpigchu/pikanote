@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: "en-US" }}">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <title>{{ page.title }} <- {{ site.title }}</title>
+  {% include head.html %}
+</head>
+
+<body>
+  <div class="wrap">
+    <header class="card online topbar">
+      <a href="{{ "/" | relative_url }}">
+        <div class="button back"></div>
+      </a>
+      {{ site.title }}
+    </header>
+    <div class="card content">
+      {% if page.image != nil %}
+      <div class="cover-image">
+        <img src="{{ page.image | relative_url }}" alt="">
+      </div>
+      {% endif %}
+      <h1>{{page.title}}</h1>
+      {% if page.old_article != false %}
+      <div class="old-article">
+        这是一篇旧文，最初发表在
+        {%- if page.zhihu_link != "undefined" -%}
+        <a href="{{ page.zhihu_link }}" target="_blank" rel="noopener">知乎专栏</a>
+        {%- else -%}
+        知乎专栏
+        {%- endif -%}
+        上
+      </div>
+      {% endif %}
+      {{content}}
+      <div class="metadata">
+        最后修改于：{{ page.date | date: "%Y-%m-%d %H:%M:%S"}}
+      </div>
+      {% if page.zhihu_link != "undefined" %}
+      <div class="other-platform">
+        你还可以在以下平台阅读本文：
+        {% if page.zhihu_link != "undefined" %}
+        <a href="{{ page.zhihu_link }}" target="_blank" rel="noopener">知乎专栏</a>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</body>
+
+</html>

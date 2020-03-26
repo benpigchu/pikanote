@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang | default: "en-US" }}">
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8">
+  <title>
+    {%- if paginator.page == 1 -%}
+    {{ site.title }}
+    {%- else -%}
+    第{{ paginator.page }}页 <- 文章列表 <- {{ site.title }}
+    {%- endif -%}
+  </title>
+  {% include head.html %}
+  {% feed_meta %}
+</head>
+
+<body>
+  <div class="wrap">
+    {% if paginator.page != 1 %}
+    <header class="card online topbar">
+      <a href="{{ "/" | relative_url }}">
+        <div class="button back"></div>
+      </a>
+      {{ site.title }}
+    </header>
+    {% endif %}
+    <div class="card content">
+      {% if paginator.page == 1 %}
+      {{content}}
+      <hr/>
+      {% else %}
+      <h1>文章列表</h1>
+      {% endif %}
+      {% for post in paginator.posts %}
+      <a href="{{ post.url | relative_url }}">
+        <div class="button post">
+          {% if post.image != nil %}
+          <img class="post-cover" src="{{ post.image | relative_url }}" alt="">
+          {% else %}
+          <div class="post-cover-placeholder"><p>No image</p></div>
+          {% endif %}
+          <div class="post-detail">
+            <p class="post-title">{{ post.title }}</p>
+            <p class="post-metadata">
+              最后修改于：{{ post.date | date: "%Y-%m-%d %H:%M:%S"}}</p>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+      {% if paginator.total_pages != 1 %}
+      <p>
+      {%- if paginator.previous_page != nil -%}
+      <span><a href="{{ paginator.previous_page_path | relative_url }}">上一页</a> · </span>
+      {%- endif -%}
+      <span>第{{paginator.page}}/{{paginator.total_pages}}页</a></span>
+      {%- if paginator.next_page != nil -%}
+      <span> · <a href="{{ paginator.next_page_path | relative_url }}">下一页</a></span>
+      {%- endif -%}
+      </p>
+      {% endif %}
+    </div>
+  </div>
+</body>
+
+</html>

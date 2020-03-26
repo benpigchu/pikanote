@@ -1,0 +1,25 @@
+url: "http://benpigchu.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: "/pikanote" # the subpath of your site, e.g. /blog
+title: "Pikanote" # the name of your site, e.g. ACME Corp.
+description: BPC的神奇笔记簿，据说有很多神奇的东西
+author: benpigchu
+lang: zh_CN
+logo: /assets/img/pikanote.png
+permalink: /article/:title:output_ext
+paginate: 10
+paginate_path: "/list-:num/"
+plugins:
+  - jekyll-paginate
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
+defaults:
+  -
+    scope:
+      path: "" # an empty string here means all files in the project
+    values:
+      layout: "default"
+      image: null
+      old_article: false
+      zhihu_link: "undefined"
+      description: BPC的神奇笔记簿，据说有很多神奇的东西
