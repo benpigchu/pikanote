@@ -50,7 +50,7 @@ date: "2017-06-10 22:38:40 +0800"
 有限状态机可以用下面这样的图来表示：
 
 {:.content-image}
-![](../assets/img/content/automata-finite/example.png)
+![]({{ "assets/img/content/automata-finite/example.png" | relative_url }})
 
 显然确定型的有限状态机对应的语言都有对应的非确定型的有限状态机，而由于状态集合的子集也只有有限种，于是反过来也是成立的。当然，在从非确定型的有限状态机构造确定型的有限状态机时，我们只需要考虑那些可能出现的状态集。
 
@@ -73,7 +73,7 @@ date: "2017-06-10 22:38:40 +0800"
 事实上，如下图构造就好了：
 
 {:.content-image}
-![](../assets/img/content/automata-finite/compond.png)
+![]({{ "assets/img/content/automata-finite/compond.png" | relative_url }})
 
 于是一个语言能被正则表达式表示当且仅当它有对应的有限状态机，这样的语言称之为正则语言。
 

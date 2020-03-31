@@ -17,7 +17,7 @@ date: "2017-07-03 15:56:44 +0800"
 图灵机可以用下面的图表示：
 
 {:.content-image}
-![](../assets/img/content/automata-turing/example.png)
+![]({{ "assets/img/content/automata-turing/example.png" | relative_url }})
 
 能被图灵机接受的字符串组成的语言称为递归可枚举语言。如果这个图灵机对于任何串都停机，则这个语言称为递归语言。这两个名字与递归函数有关。
 
@@ -80,12 +80,12 @@ date: "2017-07-03 15:56:44 +0800"
 另一个问题，哈密顿问题，也是 NP 问题。所谓哈密顿问题，就是一个图是否有遍历所有顶点的圈。我们先讨论有向图的哈密顿问题。显然这也是个 NP 问题，只需要猜测边的序列即可。我们下面通过把 3-SAT 问题在多项式时间内归约到哈密顿问题证明其为 NP 完全问题。这个构造比较麻烦，我们需要一张图，如下：
 
 {:.content-image}
-![](../assets/img/content/automata-turing/hamiton1.png)
+![]({{ "assets/img/content/automata-turing/hamiton1.png" | relative_url }})
 
 我们对于每个变元，构造一个左边的图，将它们顺序环状连接起来。对于每一个子句，构造一个右边的图。对于每一个子句中的每一个文字，我们将子句的图和对应的文字的变元的图连接起来。若文字为变元本身，将对应的两个顶点连到变元的图中从左上到右下的边的两个顶点上；若文字为变元的非，将对应的两个顶点连到变元的图中从右上到左下的边的两个顶点上。例子如下：
 
 {:.content-image}
-![](../assets/img/content/automata-turing/hamiton2.png)
+![]({{ "assets/img/content/automata-turing/hamiton2.png" | relative_url }})
 
 这样，哈密顿圈存在当且仅当可以安排变元的值使得每个子式中可以选出一个为真的文字。事实上，此图中的哈密顿圈只能是从左侧循环中跳出到子式的图当中再跳回来的。那么，子式的图中选择的路径对应着为真的文字，而变元的图保证了互为非的文字不同时为真。这个构造显然可以在多项式时间内完成，归约成立。
 
