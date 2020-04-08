@@ -23,7 +23,7 @@ date: "2017-06-11 03:46:49 +0800"
 如果我们把推导的过程用给节点添加子节点的过程表示，我们就得到了语法分析树。如下图是一个语法分析树的例子：
 
 {:.content-image}
-![]({{ "/assets/img/content/automata-push/tree.png" | relative_url }})
+![](..//assets/img/content/automata-push/tree.png)
 
 从语法分析树也可以容易地构造推导过程，只需要中序遍历一下树就好了。
 
@@ -43,7 +43,7 @@ date: "2017-06-11 03:46:49 +0800"
 下推自动机可以用下面这样的图来表示：
 
 {:.content-image}
-![]({{ "assets/img/content/automata-push/example.png" | relative_url }})
+![](../assets/img/content/automata-push/example.png)
 
 有两种判断下推自动机是否接受一个串的方式，一种是看最终自动机的状态（以终结方式接受），另一种是看自动机最终是否已经清空（以空栈方式接受）。
 
