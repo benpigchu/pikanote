@@ -41,13 +41,15 @@ a:hover::before{opacity:1}
 .content a{border-bottom-color:hsla(30,75%,40%,0.5);border-bottom-width:1px;border-bottom-style:dashed}
 .content a:hover{border-bottom-color:hsla(30,75%,40%,0.5);border-bottom-width:1px;border-bottom-style:solid}
 .content p a:hover{background-color:rgba(255,127,0,0.25)}
+.content p a::before{background-color:rgba(0,0,0,0)}
 .content br{margin:0}
 .content hr{border:none;height:1px;background-color:hsla(30,75%,40%,0.5);margin-top:16px;margin-bottom:16px}
 .content blockquote{color:hsla(30,75%,40%,0.8);margin-right:0;border-left-color:hsla(30,75%,40%,0.5);border-left-width:1px;border-left-style:solid}
 .content code{background-color: hsla(30,75%,80%,0.5);margin:0}
 .content div.highlight{margin:0}
 .content pre{background-color: hsla(30,75%,80%,0.5);margin:0;padding:8px;tab-size:4}
-.content pre>code{background-color: transparent;margin:0}
+.content pre.highlight{overflow-x:auto}
+.content pre>code{background-color:transparent;margin:0}
 
 .cover-image{text-align:center}
 .cover-image>img{margin:0;max-width:100%;min-height:240px;object-fit:cover}
