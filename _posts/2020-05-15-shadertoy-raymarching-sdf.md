@@ -1,6 +1,7 @@
 ---
 title: "如何在没有顶点着色器的 Shadertoy 里渲染三维图形"
 image: /assets/img/cover/shadertoy-raymarching-sdf.png
+zhihu_link: https://zhuanlan.zhihu.com/p/141240318/
 date: "2020-05-15 20:34:23 +0800"
 ---
 Shadertoy 是一个可以让你编写和分享片元着色器的网站。知道一点 GPU 渲染管线的应该明白，基本的三维图形实时渲染是先把顶点信息塞给 GPU，并通过顶点着色器处理顶点的信息，然后再由 GPU 硬件把每个几何单元（一般是三角形）变成一个个的像素，并进行插值，最后在片元着色器计算最终的颜色。Shadertoy 缺少顶点着色器，这意味着它只能为屏幕空间中的每个像素计算一个颜色。然而即便是有这样的限制，我们依旧能用其他的方法进行三维图形的渲染。Shadertoy 的创始人之一 Inigo Quilez 就是这一位这方面的专家，他在 [自己的网站](https://www.iquilezles.org/www/index.htm){: target="_blank" rel="noopener"} 上写了很多文章介绍这些技术和技巧。接下来我们来学习一下这些技术当中最基本的一些东西，了解一下 Shadertoy 上这些神奇的着色器是如何运作的。
@@ -70,7 +71,7 @@ vec3 rayDirection(vec2 fragCoord){
 }
 ```
 
-接下来是核心的 Ray marching 部分
+接下来是核心的 Ray marching 部分：
 
 ```glsl
 #define iteration 128
@@ -91,7 +92,7 @@ vec3 rayMarching(vec3 start,vec3 dir,float maxDepth){
 }
 ```
 
-最后我们把一切拼在一起，加上光照效果
+最后我们把一切拼在一起，加上光照效果：
 
 ```glsl
 float lighting(vec3 pos){
@@ -149,7 +150,7 @@ vec3 rayMarching(vec3 start,vec3 dir,float maxDepth){
 }
 ```
 
-效果如图
+效果如图：
 
 {:.content-image}
 ![](../assets/img/content/shadertoy-raymarching-sdf/relief-basic.png)这个效果不错
@@ -187,7 +188,7 @@ float lighting(vec3 pos){
 
 所谓有符号距离函数，就是一个用来表示与空间中一点与某个物体的边界的距离的一个函数。如果我们用有符号距离函数来表示物体，我们就可以使用它来确定光线前进的步长，这样我们就能较快得收敛到光线与物体的交点，同时由于有符号距离函数的性质我们不必担心步子太大越过了要求的交点。同时，由于有符号距离函数在物体边界上某一点的梯度就是物体在这一点的法向量，所以我们可以 [通过数值方法](https://www.iquilezles.org/www/articles/normalsSDF/normalsSDF.htm){: target="_blank" rel="noopener"} 从有符号距离函数计算出物体表面的法向量，以此完成光照的计算。当然，有时我们不需要绝对的有符号距离函数，只需要在一定范围（比如物体外部）内精确的近似有符号距离函数就好，毕竟在某些地方有错误的值并不会对最终结果产生太大的影响。
 
-接下来我们来写一个使用基于有符号距离函数的 Ray marching 渲染的着色器。与之前的相同和类似的部分我们就不重复了
+接下来我们来写一个使用基于有符号距离函数的 Ray marching 渲染的着色器。与之前的相同和类似的部分我们就不重复了。
 
 首先让我们准备好有符号距离函数：
 
@@ -242,12 +243,12 @@ vec3 rayMarching(vec3 start,vec3 dir){
 }
 ```
 
-然后我们来看看现在的效果
+然后我们来看看现在的效果：
 
 {:.content-image}
 ![](../assets/img/content/shadertoy-raymarching-sdf/sdf-flat.png)由于还没有实现光照效果，所以物体是纯色的
 
-接下来我们来实现法线方向的计算，进而实现光照效果
+接下来我们来实现法线方向的计算，进而实现光照效果：
 
 ```glsl
 
@@ -273,12 +274,12 @@ float lighting(vec3 pos){
 
 ```
 
-再来看现在的效果
+再来看现在的效果：
 
 {:.content-image}
 ![](../assets/img/content/shadertoy-raymarching-sdf/sdf-lighting.png)效果还不错，可惜没有遮挡光源产生的阴影效果
 
-到此为止，基础的渲染部分就完成了。我最终发布在 ShaderToy 的版本则修改了物体的有符号距离函数，使得物体在空间中重复了起来。可以在 [这里](https://www.shadertoy.com/view/tsffWs) 看到最终的效果。本文的题图就是这一着色器最终的渲染结果
+到此为止，基础的渲染部分就完成了。我最终发布在 ShaderToy 的版本则修改了物体的有符号距离函数，使得物体在空间中重复了起来。可以在 [这里](https://www.shadertoy.com/view/tsffWs){: target="_blank" rel="noopener"} 看到最终的效果。本文的题图就是这一着色器最终的渲染结果。
 
 当然，有符号距离函数更常见的应用是 [进行文本渲染的加速](https://github.com/libgdx/libgdx/wiki/Distance-field-fonts){: target="_blank" rel="noopener"} ，这样我只需要提前计算好文本形状的有符号距离函数的值，放进贴图里，就可以渲染放大后也不会糊掉的文本了，还可以用这个方法实现文字描边等效果。
 
@@ -287,8 +288,8 @@ float lighting(vec3 pos){
 如果还想在 Shadertoy 上写一些更强大，效果更好的着色器，你可以参考这些方向：
 
 - [使用包围盒进行渲染加速](https://www.iquilezles.org/www/articles/sdfbounding/sdfbounding.htm){: target="_blank" rel="noopener"}
-- 绕过某些硬件缺陷，比如 [更好地处理材质贴图](https://www.iquilezles.org/www/articles/filteringrm/filteringrm.htm)
-- 更强大的光影效果，比如 [室外光照](https://www.iquilezles.org/www/articles/outdoorslighting/outdoorslighting.htm)
-- 使用程序生成的几何物体，比如 [用 fBM 生成地表](https://www.iquilezles.org/www/articles/fbm/fbm.htm){: target="_blank" rel="noopener"}，[甚至真正的三维分形物体](https://www.iquilezles.org/www/articles/mandelbulb/mandelbulb.htm)
+- 绕过某些硬件缺陷，比如 [更好地处理材质贴图](https://www.iquilezles.org/www/articles/filteringrm/filteringrm.htm){: target="_blank" rel="noopener"}
+- 更强大的光影效果，比如 [室外光照](https://www.iquilezles.org/www/articles/outdoorslighting/outdoorslighting.htm){: target="_blank" rel="noopener"}
+- 使用程序生成的几何物体，比如 [用 fBM 生成地表](https://www.iquilezles.org/www/articles/fbm/fbm.htm){: target="_blank" rel="noopener"}，[甚至真正的三维分形物体](https://www.iquilezles.org/www/articles/mandelbulb/mandelbulb.htm){: target="_blank" rel="noopener"}
 
 而我，就不必在这里细挖深究了，我还有别的东西要玩呢。
