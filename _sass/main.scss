@@ -31,8 +31,8 @@ a:hover::before{opacity:1}
 .content *{margin:8px;line-height:135%;user-select:text}
 .content h1,.content h2{border-bottom-color:hsla(30,75%,40%,0.5);border-bottom-width:1px;border-bottom-style:solid}
 .content h1{padding:8px 0;margin:8px 8px 16px}
-.content h2{padding:8px 0}
-.content h3{padding-top:8px}
+.content h2,.content h3{padding:8px 0}
+.content h3{border-bottom-color:hsla(30,75%,40%,0.5);border-bottom-width:1px;border-bottom-style:dashed}
 .content ul,.content ol{list-style-position:outside;margin-left:16px;margin-right:0}
 .content .content-image{color:hsla(30,75%,40%,0.8);text-align:center}
 .content .content-image>img{margin:0;max-width:100%}

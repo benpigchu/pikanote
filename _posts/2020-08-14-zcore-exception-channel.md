@@ -1,14 +1,20 @@
 ---
 title: "为 zCore 实现 Exception Channel 机制"
+image: /assets/img/cover/zcore-exception-channel.png
+date: "2020-08-14 14:41:05 +0800"
 ---
+
+> 本文同时也在 [rcore-os blog](https://rcore-os.github.io/blog/2020/08/13/zcore-exception-channel/){: target="_blank" rel="noopener"} 发布
 
 [zCore](https://github.com/rcore-os/zCore){: target="_blank" rel="noopener"} 是我校同学用 Rust 实现的一个可以替代 Fuchsia 的 zircon 内核使用的一个微内核架构的操作系统内核。关于 zCore 的更详细介绍可以在 [这篇文章中](https://zhuanlan.zhihu.com/p/137733625){: target="_blank" rel="noopener"} 看到。
 
-最近我也参与进了 zCore 的开发，为其实现了 zircon 的 Exception Channel 机制。下面来介绍一下 Exception Channel ，以及这套机制在 zCore 中的实现。
+最近我也参与进了 zCore 的开发，为其实现了 zircon 的 Exception Channel 机制。下面来介绍一下 Exception Channel 机制，以及这套机制在 zCore 中的实现。
 
 ## Exception Channel 机制是什么
 
-在 zircon 中， Exception channel 机制被用来让用户程序能够处理其他用户程序（或者自己）在运行中产生的异常，具体的介绍可以在 [Fuchsia 的文档](https://fuchsia.dev/fuchsia-src/concepts/kernel/exceptions){: target="_blank" rel="noopener"} 中看到。
+在 zircon 中， Exception channel 机制被用来让用户程序能够处理其他用户程序（或者自己）在运行中产生的异常，具体的介绍可以在 [Fuchsia 的文档](https://fuchsia.dev/fuchsia-src/concepts/kernel/exceptions){: target="_blank" rel="noopener"} 中看到。接下来让我们对 Exception channel 机制作一个简单的介绍。
+
+### 如何处理异常
 
 对于用户程序而言，要想处理其他用户程序产生的异常，首先要能操作那些用户程序对应的内核对象。在 zircon 中，我们用 [Thread](https://fuchsia.dev/fuchsia-src/reference/kernel_objects/thread){: target="_blank" rel="noopener"}、[Process](https://fuchsia.dev/fuchsia-src/reference/kernel_objects/process){: target="_blank" rel="noopener"}、[Job](https://fuchsia.dev/fuchsia-src/reference/kernel_objects/job){: target="_blank" rel="noopener"} 这三个层次的任务（也就是 [Task](https://fuchsia.dev/fuchsia-src/reference/kernel_objects/task){: target="_blank" rel="noopener"}）管理用户程序的运行。我们都知道 Thread 也就是线程是运算调度的最小单位，Process 也就是进程是内存等资源分配的最小单位，而 zircon 中的 Job 则用于进行一组进程的权限控制和资源管理，这与 Linux 的 [cgroups](https://man7.org/linux/man-pages/man7/cgroups.7.html){: target="_blank" rel="noopener"} 类似。
 
@@ -24,6 +30,8 @@ title: "为 zCore 实现 Exception Channel 机制"
 如果我们已经成功完成了异常处理，我们应当使用 [zx_object_set_property](https://fuchsia.dev/fuchsia-src/reference/syscalls/object_set_property){: target="_blank" rel="noopener"} 系统调用将 Exception 内核对象的 [ZX_PROP_EXCEPTION_STATE](https://fuchsia.dev/fuchsia-src/reference/syscalls/object_get_property#zx_prop_exception_state){: target="_blank" rel="noopener"} 属性设置为已解决异常。如果发现自己无法解决异常便无需进行此操作。接下来只需使用 [zx_handle_close](https://fuchsia.dev/fuchsia-src/reference/syscalls/handle_close){: target="_blank" rel="noopener"} 系统调用等方式消除对 Exception 内核对象的引用，这样就完成了异常的处理。此后异常要么传递给下一个 Exception Channel ，要么直接由内核进行兜底处理。
 
 另外对于 Process 上的调试用 Exception Channel ，从这个 Channel 收到的 Exception 内核对象可以用 zx_object_set_property 系统调用将 [ZX_PROP_EXCEPTION_STRATEGY](https://fuchsia.dev/fuchsia-src/reference/syscalls/object_get_property#zx_prop_exception_state){: target="_blank" rel="noopener"} 属性设置为允许第二次机会，这样就能够在尝试使用 Thread 和 Process 上的普通 Exception Channel 无法解决异常的情况下再次收到异常再进行处理。当然，还可以用 [zx_object_get_property](https://fuchsia.dev/fuchsia-src/reference/syscalls/object_get_property){: target="_blank" rel="noopener"} 读取这个属性，以次得知得知 Process 上的调试用 Exception Channel 会不会有机会再次收到这个异常，以及是否确实是在Process 上的调试用 Exception Channel 的第二次机会中收到这个异常的。
+
+### 如何抛出异常
 
 以上我们介绍了如何使用 Exception Channel 机制处理异常。接下来我们介绍一下异常是如何产生的，以及产生异常的线程是什么行为。
 
@@ -46,7 +54,9 @@ title: "为 zCore 实现 Exception Channel 机制"
 
 ## 在 zCore 中实现 Exception Channel
 
-zCore 中 Exception Channel 机制的实现与 zircon 中的类似，但是略有不同。
+zCore 中 Exception Channel 机制的实现与 zircon 中的类似，但是略有不同。接下来我们来对此进行介绍。这里列出的代码是我的 PR 中的原始代码，和现在的版本可能略有差异，但大体思路是一致的。
+
+### Exceptionate
 
 首先，在各种 Task 内应该有用于存放用于发送异常的结构，我们称之为 `Exceptionate` ：
 
@@ -68,7 +78,7 @@ struct ExceptionateInner {
 - Exception Channel 的类型
 - 现在正在已经创建好的 Exception Channel 的发送端
 - 从这里发送的 Exception 中获取的线程和进程的 Handle 应有的权限，在创建 Exception Channel 时会根据传入的 Task 的 Handle 的权限设置
-- 是否已经关闭了 Exception Channel。这是为了避免在已经结束了的 Task 上创建 Exception Channel 而设置的。
+- 是否已经关闭了 Exception Channel。这是为了避免在已经结束了的 Task 上创建 Exception Channel 而设置的
 
 现在让我们创建 Exception Channel ：
 
@@ -100,6 +110,8 @@ impl Exceptionate{
 ```
 
 这里我们建立了一对 Channel，并将发送端保存下来，将接收端返回给调用者。在此之前我们还要检查是否已经被创建了 Exception Channel，由于 Exception Channel 被关闭时我们并不会接到通知，所以需要再检查现有的 Channel 的另一端是否已被关闭了。
+
+### Exception 和 ExceptionObject
 
 接下来我们来看 `Exception` 结构：
 
@@ -190,6 +202,8 @@ impl Exceptionate{
 
 在发送 Exception 时，我们将 `Exception` 包进 `ExceptionObject` ，设置 `Exception` 内与 Exception Channel 有关的状态，并生成要发送的异常的基本信息结构。这里我们生成了一对 [oneshot channel](https://docs.rs/futures/0.3.5/futures/channel/oneshot/index.html){: target="_blank" rel="noopener"} 用于通知调用者用户程序关闭了 `ExceptionObject` 的 Handle，并返回出来。如果没有可用的 Exception Channel ，我们返回 `ZxError::NEXT` 指示调用者改用别的方式处理异常。
 
+### 处理异常
+
 接下来我们可以开始处理异常了：
 
 ```rust
@@ -273,6 +287,8 @@ zCore 的一大特色是，在内核态使用了 async await 机制，这里我�
 
 接下来我们来介绍默认的 Exception Channel 迭代器：`ExceptionateIterator`
 
+### 寻找 Exceptionate
+
 ```rust
 struct ExceptionateIterator<'a> {
 	exception: &'a Exception,
@@ -347,6 +363,8 @@ impl<'a> Iterator for ExceptionateIterator<'a> {
 ```
 
 这里我们直接实现了 Rust 的 `Iterator` trait，这样就可以直接使用 `for in` 来取出 `Exceptionate` 的引用了。具体的实现就是经典的状态机，用 Enum 来表示接下来考虑什么类型的 Exception Channel 。另外在迭代过程中我们还读取了异常是否允许第二次机会，并以此决定是否要使用 Process 上的调试用 Exception Channel 。
+
+### 抛出异常
 
 接下来我们就可以在内核的其他地方生成并发送异常了。作为最典型的例子，我们来看 CPU 生成的异常如何处理。为了便于理解，下面的代码进行了许多简化
 
@@ -431,11 +449,15 @@ fn spawn(thread: Arc<Thread>) {
 
 现在我们实现得差不多了，可以开始测试了。Exception Channel 的测试们除了测试 Exception Channel 机制本身，同时也测试了整个 Task 模块的实现，所以接下来还会提到 Task 模块里的各种问题和细节。
 
+### core-test
+
 首先是 zircon 的核心测试 core-test 。在 core-test 中其实有不少使用了 Exception Channel 的测试，但是大部分是在使用 Exception Channel 来确认某些操作确实产生了异常，或是在线程启动时进行一些准备操作。对我们来说，比较重要的是 `Threads.ThreadStartWithZeroInstructionPointer` `Threads.SuspendMultiple` `Threads.KillSuspendedThread` 这几个与线程的状态有关的测试，测试的源代码可以在 [Fuchsia 的代码仓库](https://fuchsia.googlesource.com/fuchsia/+/2d323540e1cfaf3a99926f13e0b6c3c2efaea5d5/zircon/system/utest/core/threads/threads.cc){: target="_blank" rel="noopener"} 找到。
 
 从 `Threads.SuspendMultiple` 测试中可以发现，就算一个线程在处理异常的时候同时被 [zx_task_suspend](https://fuchsia.dev/fuchsia-src/reference/syscalls/task_suspend){: target="_blank" rel="noopener"} 系统调用暂停了，线程的状态应该为 BlockedException 状态而非 Suspend 状态。而如果看其他测试，可以发现对于其他 Blocked 的状态， Suspend 状态会将其覆盖。这一点在 Fuchsia 的文档里没有记载，为此我改了一通 Thread 的状态转换。
 
 接下来是大头：专门测试 Exception Channel 的 exception-test。exception-test 的代码可以在 [Fuchsia 的代码仓库](https://fuchsia.googlesource.com/fuchsia/+/2d323540e1cfaf3a99926f13e0b6c3c2efaea5d5/src/zircon/tests/exception/exception.cc){: target="_blank" rel="noopener"} 找到。Fuchsia 默认不会编译 exception-test，所以我需要自行手动编译 Fuchsia。为此我下载了 Fuchsia，配了编译的环境。这里按照 [官方介绍](https://fuchsia.dev/fuchsia-src/getting_started){: target="_blank" rel="noopener"} 就可以搞定，我只需要自行设置代理相关的环境变量即可。之后就可以开始编译了。由于 zircon 和 zCore 的实现略有区别，所以需要对 Fuchsia 代码进行些许的改变才能进行编译。具体的可以看 [zCore 仓库内的编译脚本](https://github.com/rcore-os/zCore/blob/master/scripts/gen-prebuilt.sh){: target="_blank" rel="noopener"}。当然，因为 Fuchsia 源码有些许变动，所以我们需要手动编辑一下同文件夹下的 patch 文件，具体的这里就略过了。最后，在 `fx set` 这一行内加上 `--with-base //src/zircon/tests/exception:exception-package` 参数，我们就可以在 zCore 加载之后直接使用 exception-test 了。不过，不知为何，用我编译出来的镜像启动时会因为某种原因无法加载 `/boot/test/` 路径下的测试二进制，所以我用 Fuchsia 编译出来的 zbi 镜像操作工具把它挪到了 `/boot/bin/` 里。
+
+### exception-test
 
 在 exception-test 中还是发现了一些实现上的问题的：
 
