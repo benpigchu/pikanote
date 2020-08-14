@@ -1,6 +1,7 @@
 ---
 title: "为 zCore 实现 Exception Channel 机制"
 image: /assets/img/cover/zcore-exception-channel.png
+zhihu_link: https://zhuanlan.zhihu.com/p/183829758/
 date: "2020-08-14 14:41:05 +0800"
 ---
 
@@ -285,9 +286,9 @@ zCore 的一大特色是，在内核态使用了 async await 机制，这里我�
 - 检查是不是成功发送了异常，设置 Exception Channel 类型，并等待异常处理完成
 - 判断是否完成了异常是否已被解决，并决定是退出还是继续循环
 
-接下来我们来介绍默认的 Exception Channel 迭代器：`ExceptionateIterator`
-
 ### 寻找 Exceptionate
+
+接下来我们来介绍默认的 Exception Channel 迭代器：`ExceptionateIterator`
 
 ```rust
 struct ExceptionateIterator<'a> {
