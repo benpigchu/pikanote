@@ -65,6 +65,7 @@ h1.info-title{padding:0;border-bottom-style:none;margin-bottom:8px}
 .info + hr{margin-top:8px}
 
 .post{display:flex;flex-direction:row;align-items:flex-start;margin-top:16px;margin-bottom:16px;}
+a.post-link::before{content:none;}
 .post-cover{margin:0;margin-right:16px;width:160px;height:80px;flex-grow:0;flex-shrink:0;object-fit:cover}
 .post-cover-placeholder{margin:0;margin-right:16px;min-width:160px;min-height:80px;border-color:hsla(30,75%,40%,0.5);border-width:1px;border-style:solid;display:flex;justify-content:center;align-items:center}
 .post-detail{margin:0;align-self:center}

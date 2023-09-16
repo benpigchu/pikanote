@@ -33,7 +33,7 @@
       <h1>文章列表</h1>
       {% endif %}
       {% for post in paginator.posts %}
-      <a href="{{ post.url | relative_url }}">
+      <a class="post-link" href="{{ post.url | relative_url }}">
         <div class="button post">
           {% if post.image != nil %}
           <img class="post-cover" src="{{ post.image | relative_url }}" alt="">
