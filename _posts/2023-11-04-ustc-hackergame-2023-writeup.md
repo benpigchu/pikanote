@@ -4,6 +4,9 @@ image: /assets/img/cover/ustc-hackergame-2023-writeup.png
 date: "2023-11-04 15:44:37 +0800"
 ---
 
+> 题图是本次 USTC Hackergame 我的题目完成情况
+
+
 一年一度的 USTC Hackergame 又开始了。今年的比赛比去年稍微晚了一些。和往年一样，今年也是每做一题就写一题的 Writeup，这样就不会因为比赛结束之后没有动力写而咕掉了。
 
 以下按照解题时间顺序排序，有多个小题的，各小题分开排列。为了简单，题目本身的描述我就不写在 Writeup 里了，大家可以去 [官方 Writeup](https://github.com/USTC-Hackergame/hackergame2023-writeups){: target="_blank" rel="noopener"} 查看。
